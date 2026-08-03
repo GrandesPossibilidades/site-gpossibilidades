@@ -1,0 +1,33 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "redirects": [
+    { "source": "/serviços",            "destination": "/servicos",           "permanent": true },
+    { "source": "/servi%C3%A7os",       "destination": "/servicos",           "permanent": true },
+    { "source": "/impressão-gráfica",   "destination": "/impressao-grafica",  "permanent": true },
+    { "source": "/impress%C3%A3o-gr%C3%A1fica", "destination": "/impressao-grafica", "permanent": true },
+    { "source": "/comunicação-visual",  "destination": "/comunicacao-visual", "permanent": true },
+    { "source": "/comunica%C3%A7%C3%A3o-visual", "destination": "/comunicacao-visual", "permanent": true },
+    { "source": "/services-4",          "destination": "/supermercados",      "permanent": true },
+    { "source": "/home",                "destination": "/",                   "permanent": true },
+    { "source": "/inicio",              "destination": "/",                   "permanent": true },
+    { "source": "/contato",             "destination": "/#contato",           "permanent": true }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" }
+      ]
+    }
+  ]
+}
