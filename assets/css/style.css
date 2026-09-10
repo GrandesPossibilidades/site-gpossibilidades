@@ -195,7 +195,7 @@ a:hover { text-decoration: none; }
   min-height: 428px;
   display: flex;
   align-items: center;
-  background: var(--cinza-claro) center/cover no-repeat;
+  background: var(--cinza-claro) url('/assets/img/home-hero.jpg') center/cover no-repeat;
   color: #fff;
   padding: 56px 0;
 }
