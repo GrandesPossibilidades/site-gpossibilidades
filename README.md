@@ -76,24 +76,26 @@ No topo de `assets/js/main.js`:
 
 ---
 
-## Apontar o domínio para a Vercel
+## Domínio e hospedagem
 
-Enquanto o domínio `gpossibilidades.com.br` estiver apontando para o Wix, o
-site novo fica acessível só pelo endereço `.vercel.app`. Para virar a chave:
+O domínio `gpossibilidades.com.br` está registrado no **Registro.br**, em
+nome de Gabriel Azeredo Pereira, e usa os servidores DNS do próprio
+Registro.br (`a.sec.dns.br` / `b.sec.dns.br`). A migração para fora do Wix
+foi concluída em 03/08/2026.
 
-1. Na Vercel: **Project → Settings → Domains → Add**, informe
-   `gpossibilidades.com.br` e `www.gpossibilidades.com.br`.
-2. A Vercel mostra os registros DNS a configurar (normalmente um `A` para o
-   domínio raiz e um `CNAME` para o `www`).
-3. Configure esses registros onde o domínio foi registrado (Registro.br ou o
-   painel de DNS que estiver em uso).
-4. Aguarde a propagação (de minutos a algumas horas) e confirme que o site
-   novo abre nos dois endereços.
-5. **Só então** cancele a assinatura do Wix.
+A zona tem 12 registros: `A` da raiz e `CNAME` do `www` apontando para a
+Vercel, `CNAME` da `calculadora`, e os registros de e-mail do Google
+Workspace (5 MX, SPF, 2 chaves DKIM e DMARC).
 
-> ⚠️ Não cancele o Wix antes do passo 4. As imagens já estão todas neste
-> repositório, então o site não depende mais do Wix — mas o domínio, sim,
-> até o DNS ser alterado.
+> ⚠️ Ao mexer nessa zona, lembre que **ativar o DNS do Registro.br é a
+> própria troca de delegação** — não dá para montar a zona antes. Durante a
+> transição (cerca de 1 hora) eles publicam uma zona padrão de "domínio sem
+> e-mail" que rejeita mensagens. Se um dia precisar refazer isso, faça de
+> madrugada.
+
+Para inventariar subdomínios antes de mexer numa zona, use os logs públicos
+de certificado (crt.sh) — chutar nomes comuns não enumera nada de forma
+confiável.
 
 ---
 
