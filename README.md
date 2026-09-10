@@ -140,3 +140,46 @@ no bloco `:root`.
 
 **Publicar uma alteração:** faça o commit e o push para o GitHub. A Vercel
 republica sozinha em cerca de um minuto.
+
+---
+
+## Segurança
+
+Sendo um site estático, a superfície de ataque é mínima: não há banco de
+dados, login, código de servidor nem dependências de terceiros. Não existe
+nada em runtime vindo de CDN — todo CSS, JS e imagem é servido do próprio
+domínio.
+
+**Cabeçalhos ativos** (definidos em `vercel.json`):
+
+| Cabeçalho | O que faz |
+| --- | --- |
+| `Content-Security-Policy` | Só permite recursos do próprio domínio. Sem `unsafe-inline` em script ou style |
+| `Strict-Transport-Security` | Força HTTPS por 2 anos, incluindo subdomínios |
+| `X-Content-Type-Options` | Impede o navegador de "adivinhar" tipo de arquivo |
+| `X-Frame-Options` | Bloqueia o site dentro de iframe de terceiros |
+| `Referrer-Policy` | Não vaza a URL completa ao sair do site |
+| `Permissions-Policy` | Desliga câmera, microfone, geolocalização, pagamento, USB |
+| `Cross-Origin-Opener-Policy` | Isola a janela de páginas abertas em nova aba |
+
+⚠️ A CSP não tem `unsafe-inline`. Se um dia você adicionar um `style="..."`
+direto no HTML ou um `<script>` inline, **ele será bloqueado**. Coloque
+estilos no `style.css` e scripts no `main.js`. (JSON-LD em
+`<script type="application/ld+json">` continua funcionando — não é executado
+como script.)
+
+**DNS:** DNSSEC está ativo (o Registro.br ligou automaticamente na migração),
+o que impede falsificação de resposta de DNS.
+
+**Certificado:** Let's Encrypt via Vercel, renovado sozinho.
+
+### Melhorias opcionais
+
+- **Registro CAA** — restringe quais autoridades podem emitir certificado
+  para o domínio. Só faz sentido se você tiver certeza de qual CA a Vercel
+  usa; se ela trocar, a renovação quebra. Baixo ganho, risco real.
+- **DMARC mais rígido** — hoje está em `p=none`, que só observa. Subir para
+  `p=quarantine` exige antes acompanhar os relatórios para não bloquear
+  e-mail legítimo.
+- **SPF** — está em `~all` (falha suave). Endurecer para `-all` só depois de
+  mapear todos os sistemas que enviam e-mail em nome do domínio.
