@@ -783,3 +783,7 @@ a:hover { text-decoration: none; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+/* títulos que o site mostra em caixa alta, mas o HTML guarda em caixa normal
+   para o Google e os leitores de tela lerem melhor */
+.faixa-titulo--caps h1 { text-transform: uppercase; }
