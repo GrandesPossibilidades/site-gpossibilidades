@@ -46,7 +46,7 @@
     },
     {
       "source": "/services-4",
-      "destination": "/supermercados",
+      "destination": "/servicos",
       "permanent": true
     },
     {
@@ -62,6 +62,11 @@
     {
       "source": "/contato",
       "destination": "/#contato",
+      "permanent": true
+    },
+    {
+      "source": "/supermercados",
+      "destination": "/servicos",
       "permanent": true
     }
   ],

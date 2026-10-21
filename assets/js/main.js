@@ -1,258 +1,138 @@
-/* =========================================================
-   GRANDES POSSIBILIDADES — scripts do site
-   ========================================================= */
+/* Grandes Possibilidades — menu, galeria e formulário.
+   Capítulo 09: três scripts curtos, nada além disso. */
 
 var CONFIG = {
-  /* Número de WhatsApp (somente dígitos, com DDI e DDD). */
   whatsapp: '5521976810029',
-
-  /* E-mail que recebe os formulários no modo de reserva. */
-  email: 'comercial@gpossibilidades.com.br',
-
-  /* Endpoint do formulário.
-     Deixe vazio ('') para o site enviar as mensagens pelo WhatsApp.
-     Para receber por e-mail, crie um formulário grátis em https://formspree.io
-     e cole aqui o endereço gerado, por exemplo:
-     formEndpoint: 'https://formspree.io/f/xxxxxxxx'                        */
+  /* Vazio = o formulário envia pelo WhatsApp.
+     Para receber por e-mail, crie um formulário em https://formspree.io
+     e cole aqui o endereço gerado. */
   formEndpoint: ''
 };
 
 (function () {
   'use strict';
 
-  /* ---------------------------------------------------
-     Menu de navegação (mobile)
-     --------------------------------------------------- */
-  function iniciarMenu() {
-    var botao = document.querySelector('.nav-toggle');
-    var nav = document.querySelector('.nav');
-    if (!botao || !nav) return;
-
+  /* ---- menu no celular ---- */
+  var botao = document.querySelector('.menu-abrir');
+  var nav = document.querySelector('.nav');
+  if (botao && nav) {
     botao.addEventListener('click', function () {
       var aberto = nav.classList.toggle('aberto');
       botao.setAttribute('aria-expanded', aberto ? 'true' : 'false');
+      botao.textContent = aberto ? 'Fechar' : 'Menu';
+      document.body.style.overflow = aberto ? 'hidden' : '';
     });
-
-    /* No mobile, o item "SERVIÇOS" abre o submenu em vez de navegar. */
-    nav.querySelectorAll('.tem-submenu > a').forEach(function (link) {
-      link.addEventListener('click', function (e) {
-        if (window.matchMedia('(max-width: 900px)').matches) {
-          e.preventDefault();
-          link.parentElement.classList.toggle('aberto');
-        }
-      });
+    nav.addEventListener('click', function (e) {
+      if (e.target.tagName === 'A' && nav.classList.contains('aberto')) botao.click();
     });
-
-    document.addEventListener('click', function (e) {
-      if (!nav.classList.contains('aberto')) return;
-      if (nav.contains(e.target) || botao.contains(e.target)) return;
-      nav.classList.remove('aberto');
-      botao.setAttribute('aria-expanded', 'false');
-    });
-
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && nav.classList.contains('aberto')) {
-        nav.classList.remove('aberto');
-        botao.setAttribute('aria-expanded', 'false');
-        botao.focus();
-      }
+      if (e.key === 'Escape' && nav.classList.contains('aberto')) botao.click();
     });
   }
 
-  /* ---------------------------------------------------
-     Galeria com lightbox
-     --------------------------------------------------- */
-  function iniciarGaleria() {
-    var itens = Array.prototype.slice.call(document.querySelectorAll('.galeria-item'));
-    if (!itens.length) return;
-
-    var caixa = document.createElement('div');
-    caixa.className = 'lightbox';
-    caixa.hidden = true;
-    caixa.setAttribute('role', 'dialog');
-    caixa.setAttribute('aria-modal', 'true');
-    caixa.setAttribute('aria-label', 'Visualizador de imagens');
-    caixa.innerHTML =
-      '<button class="lb-fechar" type="button" aria-label="Fechar">&times;</button>' +
-      '<button class="lb-anterior" type="button" aria-label="Imagem anterior">&#10094;</button>' +
+  /* ---- galeria: amplia com <dialog> nativo ---- */
+  var itens = [].slice.call(document.querySelectorAll('.galeria button'));
+  if (itens.length && window.HTMLDialogElement) {
+    var dlg = document.createElement('dialog');
+    dlg.className = 'lupa';
+    dlg.innerHTML =
       '<img alt="">' +
-      '<button class="lb-proxima" type="button" aria-label="Próxima imagem">&#10095;</button>' +
-      '<p class="lightbox-legenda"></p>';
-    document.body.appendChild(caixa);
+      '<div class="lupa-barra">' +
+        '<button type="button" data-ir="-1" aria-label="Imagem anterior">&#10094;</button>' +
+        '<p class="rotulo rotulo--suave"></p>' +
+        '<button type="button" data-ir="1" aria-label="Próxima imagem">&#10095;</button>' +
+        '<button type="button" data-fechar aria-label="Fechar">&times;</button>' +
+      '</div>';
+    document.body.appendChild(dlg);
 
-    var figura = caixa.querySelector('img');
-    var legenda = caixa.querySelector('.lightbox-legenda');
+    var foto = dlg.querySelector('img');
+    var legenda = dlg.querySelector('p');
     var atual = 0;
-    var ultimoFoco = null;
 
-    function mostrar(indice) {
-      atual = (indice + itens.length) % itens.length;
-      var origem = itens[atual].querySelector('img');
-      figura.src = origem.getAttribute('data-grande') || origem.src;
-      figura.alt = origem.alt;
-      legenda.textContent = origem.alt + '  (' + (atual + 1) + '/' + itens.length + ')';
+    function mostrar(i) {
+      atual = (i + itens.length) % itens.length;
+      var o = itens[atual].querySelector('img');
+      foto.src = o.getAttribute('data-grande') || o.src;
+      foto.alt = o.alt;
+      legenda.textContent = o.alt + '  ·  ' + (atual + 1) + '/' + itens.length;
     }
-
-    function abrir(indice) {
-      ultimoFoco = document.activeElement;
-      mostrar(indice);
-      caixa.hidden = false;
-      document.body.style.overflow = 'hidden';
-      caixa.querySelector('.lb-fechar').focus();
-    }
-
-    function fechar() {
-      caixa.hidden = true;
-      document.body.style.overflow = '';
-      if (ultimoFoco) ultimoFoco.focus();
-    }
-
-    itens.forEach(function (item, i) {
-      item.addEventListener('click', function () { abrir(i); });
+    itens.forEach(function (b, i) {
+      b.addEventListener('click', function () { mostrar(i); dlg.showModal(); });
     });
-
-    caixa.querySelector('.lb-fechar').addEventListener('click', fechar);
-    caixa.querySelector('.lb-anterior').addEventListener('click', function () { mostrar(atual - 1); });
-    caixa.querySelector('.lb-proxima').addEventListener('click', function () { mostrar(atual + 1); });
-    caixa.addEventListener('click', function (e) { if (e.target === caixa) fechar(); });
-
+    dlg.addEventListener('click', function (e) {
+      var ir = e.target.getAttribute && e.target.getAttribute('data-ir');
+      if (ir) mostrar(atual + Number(ir));
+      else if (e.target.hasAttribute && e.target.hasAttribute('data-fechar')) dlg.close();
+      else if (e.target === dlg) dlg.close();
+    });
     document.addEventListener('keydown', function (e) {
-      if (caixa.hidden) return;
-      if (e.key === 'Escape') fechar();
+      if (!dlg.open) return;
       if (e.key === 'ArrowLeft') mostrar(atual - 1);
       if (e.key === 'ArrowRight') mostrar(atual + 1);
     });
   }
 
-  /* ---------------------------------------------------
-     Slideshow
-     --------------------------------------------------- */
-  function iniciarSlideshow() {
-    var slideshow = document.querySelector('.slideshow');
-    if (!slideshow) return;
+  /* ---- formulário ---- */
+  document.querySelectorAll('form[data-form]').forEach(function (form) {
+    var estado = form.querySelector('.form-estado');
 
-    var slides = Array.prototype.slice.call(slideshow.querySelectorAll('figure'));
-    if (slides.length < 2) return;
-
-    var contador = slideshow.querySelector('.slideshow-contador');
-    var atual = 0;
-    var timer = null;
-
-    function ir(indice) {
-      slides[atual].classList.remove('ativo');
-      atual = (indice + slides.length) % slides.length;
-      slides[atual].classList.add('ativo');
-      /* carrega a próxima com antecedência */
-      var proxima = slides[(atual + 1) % slides.length].querySelector('img');
-      if (proxima && proxima.loading === 'lazy') proxima.loading = 'eager';
-      if (contador) contador.textContent = (atual + 1) + '/' + slides.length;
+    function marcarErro(campo, texto) {
+      campo.setAttribute('data-erro', '');
+      if (!campo.querySelector('.erro')) {
+        var p = document.createElement('p');
+        p.className = 'erro';
+        p.textContent = texto;
+        campo.appendChild(p);
+      }
+    }
+    function limparErro(campo) {
+      campo.removeAttribute('data-erro');
+      var e = campo.querySelector('.erro');
+      if (e) e.remove();
     }
 
-    function reiniciarTimer() {
-      window.clearInterval(timer);
-      timer = window.setInterval(function () { ir(atual + 1); }, 5000);
-    }
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var valido = true;
 
-    slideshow.querySelector('.anterior').addEventListener('click', function () { ir(atual - 1); reiniciarTimer(); });
-    slideshow.querySelector('.proxima').addEventListener('click', function () { ir(atual + 1); reiniciarTimer(); });
+      form.querySelectorAll('.campo').forEach(function (campo) {
+        var c = campo.querySelector('input, textarea');
+        if (!c) return;
+        limparErro(campo);
+        if (c.required && !c.value.trim()) {
+          marcarErro(campo, 'Preencha este campo.');
+          valido = false;
+        } else if (c.type === 'email' && c.value && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(c.value)) {
+          marcarErro(campo, 'Falta o domínio. Exemplo: nome@empresa.com.br');
+          valido = false;
+        }
+      });
+      if (!valido) { form.querySelector('[data-erro] input, [data-erro] textarea').focus(); return; }
 
-    slideshow.addEventListener('mouseenter', function () { window.clearInterval(timer); });
-    slideshow.addEventListener('mouseleave', reiniciarTimer);
+      var dados = new FormData(form);
+      var linhas = [];
+      dados.forEach(function (v, k) { if (String(v).trim()) linhas.push(k + ': ' + v); });
 
-    /* arrastar com o dedo */
-    var inicioX = null;
-    slideshow.addEventListener('touchstart', function (e) { inicioX = e.touches[0].clientX; }, { passive: true });
-    slideshow.addEventListener('touchend', function (e) {
-      if (inicioX === null) return;
-      var delta = e.changedTouches[0].clientX - inicioX;
-      if (Math.abs(delta) > 45) { ir(delta < 0 ? atual + 1 : atual - 1); reiniciarTimer(); }
-      inicioX = null;
-    });
-
-    ir(0);
-    reiniciarTimer();
-  }
-
-  /* ---------------------------------------------------
-     Formulários
-     --------------------------------------------------- */
-  function iniciarFormularios() {
-    document.querySelectorAll('form[data-form]').forEach(function (form) {
-      var status = form.querySelector('.form-status');
-      var botao = form.querySelector('button[type="submit"]');
-
-      function aviso(texto) {
-        if (!status) return;
-        status.textContent = texto;
-        status.hidden = false;
+      function ok(texto) {
+        if (!estado) return;
+        estado.textContent = texto;
+        estado.hidden = false;
       }
 
-      form.addEventListener('submit', function (e) {
-        e.preventDefault();
-
-        var dados = new FormData(form);
-        var campos = [];
-        dados.forEach(function (valor, chave) {
-          if (String(valor).trim()) campos.push(chave + ': ' + valor);
-        });
-
-        if (!campos.length) {
-          aviso('Preencha os campos antes de enviar.');
-          return;
-        }
-
-        if (CONFIG.formEndpoint) {
-          if (botao) { botao.disabled = true; botao.textContent = 'Enviando...'; }
-          fetch(CONFIG.formEndpoint, {
-            method: 'POST',
-            body: dados,
-            headers: { Accept: 'application/json' }
-          }).then(function (resposta) {
-            if (!resposta.ok) throw new Error('falha');
-            form.reset();
-            aviso('Obrigado pelo envio!');
-          }).catch(function () {
-            aviso('Não conseguimos enviar agora. Fale com a gente pelo WhatsApp: ' + formatarTelefone());
-          }).then(function () {
-            if (botao) { botao.disabled = false; botao.textContent = 'Enviar'; }
-          });
-          return;
-        }
-
-        /* Sem endpoint configurado: abre o WhatsApp com a mensagem pronta. */
-        var texto = 'Olá! Vim pelo site.\n\n' + campos.join('\n');
-        window.open('https://wa.me/' + CONFIG.whatsapp + '?text=' + encodeURIComponent(texto), '_blank', 'noopener');
-        aviso('Obrigado pelo envio! Abrimos o WhatsApp para concluir.');
-      });
+      if (CONFIG.formEndpoint) {
+        fetch(CONFIG.formEndpoint, { method: 'POST', body: dados, headers: { Accept: 'application/json' } })
+          .then(function (r) { if (!r.ok) throw 0; form.reset(); ok('Recebemos. Respondemos em até 48 horas.'); })
+          .catch(function () { ok('Não conseguimos enviar agora. Fale com a gente pelo WhatsApp.'); });
+        return;
+      }
+      window.open('https://wa.me/' + CONFIG.whatsapp + '?text=' +
+        encodeURIComponent('Olá! Vim pelo site.\n\n' + linhas.join('\n')), '_blank', 'noopener');
+      ok('Recebemos. Respondemos em até 48 horas.');
     });
-  }
+  });
 
-  function formatarTelefone() {
-    var n = CONFIG.whatsapp;
-    return '+' + n.slice(0, 2) + ' ' + n.slice(2, 4) + ' ' + n.slice(4, 9) + '-' + n.slice(9);
-  }
-
-  /* ---------------------------------------------------
-     Ano do rodapé
-     --------------------------------------------------- */
-  function atualizarAno() {
-    var alvo = document.querySelectorAll('[data-ano]');
-    var ano = new Date().getFullYear();
-    alvo.forEach(function (el) { el.textContent = ano; });
-  }
-
-  /* --------------------------------------------------- */
-  function iniciar() {
-    iniciarMenu();
-    iniciarGaleria();
-    iniciarSlideshow();
-    iniciarFormularios();
-    atualizarAno();
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', iniciar);
-  } else {
-    iniciar();
-  }
+  /* ---- ano do rodapé ---- */
+  document.querySelectorAll('[data-ano]').forEach(function (el) {
+    el.textContent = new Date().getFullYear();
+  });
 })();
