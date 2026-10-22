@@ -49,6 +49,26 @@
     "addressRegion": "RJ",
     "addressCountry": "BR"
   },
+  "openingHoursSpecification": [
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday"],
+      "opens": "08:00",
+      "closes": "18:00"
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": "Friday",
+      "opens": "08:00",
+      "closes": "17:00"
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Saturday", "Sunday"],
+      "opens": "00:00",
+      "closes": "00:00"
+    }
+  ],
   "areaServed": [
     { "@type": "City", "name": "Nova Iguaçu" },
     { "@type": "City", "name": "Rio de Janeiro" },
@@ -269,6 +289,10 @@
             <span class="rotulo rotulo--suave">Escritório</span>
             <p>Rua Londres, 214 — Rosa dos Ventos<br>Nova Iguaçu · RJ · 26278-605</p>
           </div>
+          <div class="dado">
+            <span class="rotulo rotulo--suave">Horário</span>
+            <p>Segunda a quinta, 8h às 18h<br>Sexta, 8h às 17h</p>
+          </div>
         </div>
         <form class="form" data-form novalidate action="https://api.web3forms.com/submit" method="POST">
           <input type="hidden" name="access_key" value="000b3480-ad19-4293-ba53-843ecad4bc43">
@@ -327,6 +351,7 @@
         <ul>
           <li>Rua Londres, 214 — Rosa dos Ventos</li>
           <li>Nova Iguaçu · RJ · 26278-605</li>
+          <li>Seg a qui, 8h–18h · Sex, 8h–17h</li>
           <li><a href="https://www.instagram.com/gpossibilidades/" target="_blank" rel="noopener">Instagram</a> · <a href="https://www.facebook.com/gpossibilidades" target="_blank" rel="noopener">Facebook</a></li>
         </ul>
       </div>
