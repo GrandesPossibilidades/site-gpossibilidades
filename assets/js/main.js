@@ -49,15 +49,26 @@ var CONFIG = {
   var aSurgir = [].slice.call(document.querySelectorAll('.surge'));
   if (aSurgir.length && window.IntersectionObserver && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
     function revelar(el) { el.classList.remove('oculto'); el.classList.add('visivel'); }
-    aSurgir.forEach(function (el) { el.classList.add('oculto'); });
-    var io = new IntersectionObserver(function (es) {
-      es.forEach(function (e) {
-        if (e.isIntersecting) { revelar(e.target); io.unobserve(e.target); }
-      });
-    }, { threshold: .08 });
-    aSurgir.forEach(function (el) { io.observe(el); });
-    /* rede de segurança: nada fica escondido mais de 2 segundos */
-    setTimeout(function () { aSurgir.forEach(revelar); }, 2000);
+
+    /* Só escondemos o que já nasce abaixo da dobra. O que o visitante vê ao
+       chegar aparece de imediato, sem piscar e sem depender do observador. */
+    var alturaTela = window.innerHeight || 0;
+    var escondidos = aSurgir.filter(function (el) {
+      if (el.getBoundingClientRect().top < alturaTela * 0.9) return false;
+      el.classList.add('oculto');
+      return true;
+    });
+
+    if (escondidos.length) {
+      var io = new IntersectionObserver(function (es) {
+        es.forEach(function (e) {
+          if (e.isIntersecting) { revelar(e.target); io.unobserve(e.target); }
+        });
+      }, { threshold: .08 });
+      escondidos.forEach(function (el) { io.observe(el); });
+      /* rede de segurança: nada fica escondido mais de 2 segundos */
+      setTimeout(function () { escondidos.forEach(revelar); }, 2000);
+    }
   }
 
   /* ---- galeria: amplia com <dialog> nativo ---- */
