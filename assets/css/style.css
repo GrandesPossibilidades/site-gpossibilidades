@@ -544,12 +544,15 @@ dialog.lupa img { width: 100%; max-height: 76vh; object-fit: contain; background
 .icone--amarelo { background: rgba(247, 235, 35, .15); }
 .icone--amarelo svg { stroke: var(--amarelo); }
 
-/* seções surgindo ao entrar na tela */
-.surge { opacity: 0; transform: translateY(16px); transition: opacity .5s, transform .5s cubic-bezier(.2,.7,.2,1); }
-.surge.visivel { opacity: 1; transform: none; }
+/* seções surgindo ao entrar na tela.
+   O conteúdo nunca depende de JavaScript para aparecer: só é escondido
+   se o próprio script conseguir rodar e decidir animar. */
+.surge { opacity: 1; transform: none; }
+.surge.oculto { opacity: 0; transform: translateY(16px); }
+.surge.visivel { opacity: 1; transform: none; transition: opacity .5s, transform .5s cubic-bezier(.2,.7,.2,1); }
 
 @media (prefers-reduced-motion: reduce) {
-  .surge { opacity: 1 !important; transform: none !important; }
+  .surge, .surge.oculto { opacity: 1 !important; transform: none !important; }
   .zap { animation: none; }
 }
 

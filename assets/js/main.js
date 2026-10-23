@@ -43,16 +43,21 @@ var CONFIG = {
     }, { passive: true });
   }
 
-  /* ---- seções surgindo ---- */
-  if (window.IntersectionObserver && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  /* ---- seções surgindo ----
+     O conteúdo já está visível no HTML. Só escondemos se der para animar,
+     e uma rede de segurança revela tudo caso o observador não dispare. */
+  var aSurgir = [].slice.call(document.querySelectorAll('.surge'));
+  if (aSurgir.length && window.IntersectionObserver && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    function revelar(el) { el.classList.remove('oculto'); el.classList.add('visivel'); }
+    aSurgir.forEach(function (el) { el.classList.add('oculto'); });
     var io = new IntersectionObserver(function (es) {
       es.forEach(function (e) {
-        if (e.isIntersecting) { e.target.classList.add('visivel'); io.unobserve(e.target); }
+        if (e.isIntersecting) { revelar(e.target); io.unobserve(e.target); }
       });
-    }, { threshold: .12 });
-    document.querySelectorAll('.surge').forEach(function (el) { io.observe(el); });
-  } else {
-    document.querySelectorAll('.surge').forEach(function (el) { el.classList.add('visivel'); });
+    }, { threshold: .08 });
+    aSurgir.forEach(function (el) { io.observe(el); });
+    /* rede de segurança: nada fica escondido mais de 2 segundos */
+    setTimeout(function () { aSurgir.forEach(revelar); }, 2000);
   }
 
   /* ---- galeria: amplia com <dialog> nativo ---- */
